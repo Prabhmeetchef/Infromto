@@ -19,3 +19,21 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Loader styles */
+.loader {
+  width: 40px;
+  aspect-ratio: 1;
+  background:
+    linear-gradient(#FF0000 0 0),   /* Red gradient */
+    linear-gradient(#000000 0 0),   /* Black gradient */
+    #FF0000;                        /* Red background */
+  background-repeat: no-repeat;
+  animation: l1 1.5s infinite;      /* Animation for the loader */
+}
+
+@keyframes l1 {
+  0%   {background-size: 100% 0, 0 100%;}
+  30%, 50% {background-size: 100% 100%, 100% 100%;}
+  80%, 100% {background-size: 100% 100%, 100% 100%;}
+}
