@@ -6,9 +6,16 @@ import Link from "next/link";
 
 export default function Results() {
   const searchParams = useSearchParams();
-  const [flights, setFlights] = useState([]);
+  interface Flight {
+    airline: string;
+    airlineLogo?: string;
+    price: number;
+    bookingToken: string;
+  }
+
+  const [flights, setFlights] = useState<Flight[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const from = searchParams.get("from");
   const to = searchParams.get("to");
@@ -32,11 +39,14 @@ export default function Results() {
         }
 
         // Sort flights by price from low to high
-        const sortedFlights = data.sort((a, b) => a.price - b.price);
-
+        const sortedFlights = data.sort((a: { price: number }, b: { price: number }) => a.price - b.price);
         setFlights(sortedFlights);
       } catch (err) {
-        setError(err.message);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
       } finally {
         setLoading(false);
       }

@@ -1,6 +1,7 @@
+import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export async function GET(request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const from = searchParams.get("from");
@@ -16,13 +17,17 @@ export async function GET(request) {
 
     // Construct the SerpAPI URL for Google Flights
     const serpApiUrl = new URL('https://serpapi.com/search');
+    const apikey = process.env.SERP_API_KEY;
     serpApiUrl.searchParams.append('engine', 'google_flights');
     serpApiUrl.searchParams.append('departure_id', from.toUpperCase()); // Ensure uppercased
     serpApiUrl.searchParams.append('arrival_id', to.toUpperCase()); // Ensure uppercased
     serpApiUrl.searchParams.append('outbound_date', date);
     serpApiUrl.searchParams.append('type', '2'); // One-way flight type
     console.log("Loaded SERP_API_KEY:", process.env.SERP_API_KEY);
-    serpApiUrl.searchParams.append('api_key', process.env.SERP_API_KEY);
+    if (!apikey) {
+      throw new Error("API key is missing");
+    }
+    serpApiUrl.searchParams.append('api_key', apikey);
 
     const response = await fetch(serpApiUrl);
     const data = await response.json();
