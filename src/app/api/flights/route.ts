@@ -1,5 +1,4 @@
-import { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,11 +18,11 @@ export async function GET(request: NextRequest) {
     const serpApiUrl = new URL('https://serpapi.com/search');
     const apikey = process.env.SERP_API_KEY;
     serpApiUrl.searchParams.append('engine', 'google_flights');
-    serpApiUrl.searchParams.append('departure_id', from.toUpperCase()); // Ensure uppercased
-    serpApiUrl.searchParams.append('arrival_id', to.toUpperCase()); // Ensure uppercased
+    serpApiUrl.searchParams.append('departure_id', from.toUpperCase());
+    serpApiUrl.searchParams.append('arrival_id', to.toUpperCase());
     serpApiUrl.searchParams.append('outbound_date', date);
     serpApiUrl.searchParams.append('type', '2'); // One-way flight type
-    console.log("Loaded SERP_API_KEY:", process.env.SERP_API_KEY);
+
     if (!apikey) {
       throw new Error("API key is missing");
     }
@@ -36,16 +35,25 @@ export async function GET(request: NextRequest) {
       throw new Error(data.error);
     }
 
-    // Extract only needed information from flights
+    // Fetch the latest exchange rate (USD to INR)
+    const exchangeRateResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const exchangeRateData = await exchangeRateResponse.json();
+    const usdToInr = exchangeRateData.rates.INR;
+
+    if (!usdToInr) {
+      throw new Error("Failed to fetch exchange rate");
+    }
+
+    // Extract and convert prices
     const flights = [...(data.best_flights || []), ...(data.other_flights || [])];
     const simplifiedFlights = flights.map(flight => ({
       airline: flight.flights[0].airline,
       airlineLogo: flight.flights[0].airline_logo,
-      price: flight.price,
+      price: Math.round(flight.price * usdToInr), // Convert USD to INR
+      currency: "INR",
       bookingToken: flight.booking_token
     }));
 
-    // Return the flights as JSON
     return NextResponse.json(simplifiedFlights);
 
   } catch (error) {

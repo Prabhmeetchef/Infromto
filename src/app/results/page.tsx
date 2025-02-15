@@ -119,7 +119,7 @@ export default function Results() {
                     </h3>
                   </div>
                   <div className="flex items-center gap-4">
-                    <p className="text-2xl font-bold text-red-600">${flight.price}</p>
+                    <p className="text-2xl font-bold text-red-600">₹{flight.price}</p>
                     <button 
                       onClick={() => window.open(`https://www.google.com/flights?hl=en#flt=${flight.bookingToken}`, '_blank')}
                       className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-black transition"
