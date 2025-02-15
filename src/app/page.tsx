@@ -3,17 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface Airport {
+  name: string;
+  code: string;
+}
+
 export default function Home() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({ from: "", to: "", date: "" });
   const [searchQuery, setSearchQuery] = useState({ from: "", to: "" });
-  const [searchResults, setSearchResults] = useState<{ from: any[]; to: any[] }>({
+  const [searchResults, setSearchResults] = useState<{ from: Airport[]; to: Airport[] }>({
     from: [],
     to: [],
   });
   const [errors, setErrors] = useState<{ from?: string; to?: string; date?: string }>({});
-
+  
   // Fetch airport suggestions
   const fetchAirports = async (query: string, type: "from" | "to") => {
     if (query.length < 1) {
@@ -23,7 +28,7 @@ export default function Home() {
 
     try {
       const response = await fetch(`/api/airports?query=${query}`);
-      const data = await response.json();
+      const data: Airport[]= await response.json();
       setSearchResults((prev) => ({ ...prev, [type]: data.slice(0, 5) }));
     } catch (error) {
       console.error("Error fetching airports:", error);
